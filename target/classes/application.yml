@@ -8,3 +8,15 @@ spring:
     password: testdb
 server:
   port: 8000
+
+
+plan:
+  module:
+    messages:
+      save-success: Travel plan saved successfully with planId
+      save-failure: Problem with saving TravelPlan
+      plan-id-not-found:  plan id not found
+      travel-plan-updated: Travel plan updated successfully
+      travel-plan-deleted: Travel plan deleted successfully
+      travel-plan-not-found: Travel plan not found
+      travel-plan-status:  Travel plan status has changed

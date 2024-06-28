@@ -1,11 +1,14 @@
 package com.goindia.service;
 
 
+import com.goindia.config.AppConfigProperties;
+import com.goindia.constants.TravelPlanConstants;
 import com.goindia.entities.PlanCategory;
 import com.goindia.entities.TravelPlan;
 import com.goindia.repos.PlanCategoryRepo;
 import com.goindia.repos.TravelPlanRepo;
-import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -14,17 +17,26 @@ import java.util.Map;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class TravelPlanMgmtServiceImpl implements TravelPlanMgmtService {
 
-    private final TravelPlanRepo travelPlanRepo;
+    @Autowired
+    private  TravelPlanRepo travelPlanRepo;
 
-    private final PlanCategoryRepo planCategoryRepo;
+    @Autowired
+    private  PlanCategoryRepo planCategoryRepo;
+
+    public Map<String,String> messages;
+
+    @Autowired
+    private  TravelPlanMgmtServiceImpl(AppConfigProperties properties){
+        messages=properties.getMessages();
+    }
+
 
     @Override
     public String registerTravelPlan(TravelPlan travelPlan) {
         TravelPlan savedTravelPlan =travelPlanRepo.save( travelPlan );
-        return savedTravelPlan.getPlanId()!=null?"Travel plan saved successfully with planId "+savedTravelPlan.getPlanId():"Problem with saving TravelPlan";
+        return savedTravelPlan.getPlanId()!=null?messages.get( TravelPlanConstants.SAVE_SUCCESS )+savedTravelPlan.getPlanId():messages.get( TravelPlanConstants.SAVE_FAILURE );
     }
 
     @Override
@@ -44,7 +56,7 @@ public class TravelPlanMgmtServiceImpl implements TravelPlanMgmtService {
 
     @Override
     public TravelPlan getTravelPlanById(Long planId) {
-        return travelPlanRepo.findById( planId ).orElseThrow(()->new IllegalArgumentException("plan id not found"));
+        return travelPlanRepo.findById( planId ).orElseThrow(()->new IllegalArgumentException(messages.get( TravelPlanConstants.PLAN_ID_NOT_FOUND )));
     }
 
     @Override
@@ -52,9 +64,9 @@ public class TravelPlanMgmtServiceImpl implements TravelPlanMgmtService {
         Optional<TravelPlan> travelPlanOptional = travelPlanRepo.findById( travelPlan.getPlanId() );
         if(travelPlanOptional.isPresent()) {
              travelPlanRepo.save( travelPlan );
-             return travelPlan.getPlanId()+" Travel plan updated successfully";
+             return travelPlan.getPlanId()+messages.get( TravelPlanConstants.TRAVEL_PLAN_UPDATED );
         }
-        return  travelPlan.getPlanId()+" Travel plan  not found";
+        return  travelPlan.getPlanId()+messages.get( TravelPlanConstants.TRAVEL_PLAN_NOT_FOUND );
     }
 
     @Override
@@ -62,9 +74,9 @@ public class TravelPlanMgmtServiceImpl implements TravelPlanMgmtService {
         Optional<TravelPlan> travelPlanOptional = travelPlanRepo.findById(planId);
         if(travelPlanOptional.isPresent()) {
             travelPlanRepo.deleteById( planId );
-            return planId +" Travel plan deleted successfully";
+            return planId +messages.get( TravelPlanConstants.TRAVEL_PLAN_DELETED );
         }
-        return planId +" Travel plan not found";
+        return planId +messages.get( TravelPlanConstants.TRAVEL_PLAN_NOT_FOUND );
     }
 
     @Override
@@ -74,9 +86,9 @@ public class TravelPlanMgmtServiceImpl implements TravelPlanMgmtService {
             TravelPlan travelPlan = travelPlanOptional.get();
             travelPlan.setActiveSW( status );
             travelPlanRepo.save( travelPlan );
-            return planId +" Travel plan status has changed";
+            return planId +messages.get( TravelPlanConstants.TRAVEL_PLAN_STATUS );
         }else{
-            return planId+" Travel plan not found";
+            return planId+messages.get( TravelPlanConstants.TRAVEL_PLAN_NOT_FOUND );
         }
     }
 }
